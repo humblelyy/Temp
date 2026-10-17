@@ -1,0 +1,7 @@
+# HUMBL Wallpapers
+> Prototype V2 of a premium still and live wallpaper platform from the HUMBLE brand.
+
+- /: Browse, search and filter wallpapers
+- /about: About HUMBL Wallpapers
+- /contact: Contact
+- /legal/privacy, /legal/terms, /legal/copyright, /legal/accessibility, /legal/cookies
