@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { animateView } from "motion-dom";
+import { spring, stagger } from "motion";
 import type { Wallpaper } from "@/lib/wallpapers";
 import WallpaperImage from "./WallpaperImage";
 import Segmented from "./Segmented";
@@ -22,6 +25,17 @@ export default function Browser({ categories }: { categories: string[] }) {
     setClosing(true); setTimeout(() => { setOpenRaw(null); setClosing(false); }, 260);
   };
   const grid = useRef<HTMLDivElement>(null);
+  // after the first filter change every card renders already-revealed, so view snapshots aren't blank
+  const [settled, setSettled] = useState(false);
+
+  // Morph the grid between filter states: survivors glide to their new cell, leavers/newcomers pop.
+  const morph = (update: () => void) => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("startViewTransition" in document)) { setSettled(true); update(); return; }
+    animateView(() => flushSync(() => { setSettled(true); update(); }), { type: spring, visualDuration: 0.4, bounce: 0.18 })
+      .add(".card")
+      .enter({ opacity: [0, 1], scale: [0.85, 1] }, { delay: stagger(0.03) })
+      .exit({ opacity: 0, scale: 0.85 }, { delay: stagger(0.03) });
+  };
 
   useEffect(() => {
     fetch("/api/wallpapers").then((r) => r.json()).then(setItems).catch(() => setItems([]));
@@ -70,22 +84,22 @@ export default function Browser({ categories }: { categories: string[] }) {
     <section className="container" id="browse" aria-label="Browse wallpapers">
       <div className="toolbar-wrap"><div className="toolbar glass">
         <input className="field search" type="search" placeholder="Search titles or tags — fog, night, minimal…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search wallpapers" />
-        <Segmented label="Format" value={kind} onChange={setKind} options={[{ value: "all", label: "All" }, { value: "still", label: "Still" }, { value: "live", label: "Live" }]} />
-        <select className="field" value={device} onChange={(e) => setDevice(e.target.value)} aria-label="Device"><option value="all">All devices</option><option value="phone">Phone</option><option value="tablet">Tablet</option><option value="desktop">Desktop</option></select>
-        <select className="field" value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Category"><option value="all">All categories</option>{categories.map((c) => <option key={c}>{c}</option>)}</select>
-        <select className="field" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort"><option value="new">Newest</option><option value="popular">Most downloaded</option><option value="az">A–Z</option></select>
+        <Segmented label="Format" value={kind} onChange={(v) => morph(() => setKind(v))} options={[{ value: "all", label: "All" }, { value: "still", label: "Still" }, { value: "live", label: "Live" }]} />
+        <select className="field" value={device} onChange={(e) => { const v = e.target.value; morph(() => setDevice(v)); }} aria-label="Device"><option value="all">All devices</option><option value="phone">Phone</option><option value="tablet">Tablet</option><option value="desktop">Desktop</option></select>
+        <select className="field" value={cat} onChange={(e) => { const v = e.target.value; morph(() => setCat(v)); }} aria-label="Category"><option value="all">All categories</option>{categories.map((c) => <option key={c}>{c}</option>)}</select>
+        <select className="field" value={sort} onChange={(e) => { const v = e.target.value; morph(() => setSort(v)); }} aria-label="Sort"><option value="new">Newest</option><option value="popular">Most downloaded</option><option value="az">A–Z</option></select>
       </div></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>
         <span aria-live="polite">{items ? `${list.length} wallpaper${list.length === 1 ? "" : "s"}` : "Loading…"}</span>
         <label style={{ display: "flex", gap: 8, alignItems: "center", cursor: "pointer" }}>
-          <input type="checkbox" checked={favOnly} onChange={(e) => setFavOnly(e.target.checked)} /> Favorites only ({favs.length})
+          <input type="checkbox" checked={favOnly} onChange={(e) => { const v = e.target.checked; morph(() => setFavOnly(v)); }} /> Favorites only ({favs.length})
         </label>
       </div>
 
       <div className="grid" ref={grid}>
         {!items && Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ aspectRatio: i % 3 === 1 ? "16/9" : "9/16" }} aria-hidden />)}
         {list.map((w, i) => (
-          <div key={w.id} className="card" style={{ position: "relative" }}>
+          <div key={w.id} className={`card${settled ? " in" : ""}`} style={{ position: "relative" }}>
             <button onClick={() => setOpen(w)} style={{ all: "unset", display: "block", width: "100%", cursor: "pointer" }} aria-label={`Open ${w.title}`}>
               <WallpaperImage src={w.preview} alt={`${w.title} — ${w.category} wallpaper`} width={w.width} height={w.height} eager={i < 4} />
               <div className="card-meta">

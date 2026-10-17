@@ -30,5 +30,6 @@ docker compose -f docker-compose.alloy.yaml up -d
 - Contact form does not send messages.
 
 ## Changelog
+- **V3.1** — Grid filter changes morph with Motion `animateView` (View Transitions + spring, survivors glide, newcomers/leavers scale-fade with stagger); intro gets an anime.js 13×13 centre-out dot ripple (`createTimeline` + grid `stagger`); intro now decided before first paint (no late fade-in); Motion AI Kit (skills + MCP) and shadcn MCP configured.
 - **V3** — iOS 26 Liquid Glass pass (guided by the `apple-design` skill): glass limited to the floating layer (tab bar, filter capsule, sheet, cookie popover, clear-glass favorite buttons over photos); specular rims, scroll-edge blur; spring physics via CSS `linear()` on the tab indicator (with jelly squash), segmented control, buttons, cards and sheet; tab bar hides on scroll down; bottom sheet with grabber on mobile; Reduce Transparency / Increase Contrast / Reduce Motion fallbacks.
 - **V2** — Initial prototype.

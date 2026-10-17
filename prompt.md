@@ -44,6 +44,12 @@ Make focused improvements based on the owner's feedback. Preserve existing worki
 ## Owner direction added after Prototype V2
 - **V3 — iOS 26 style:** Make the website look like the iOS 26 UI, with Liquid Glass and bouncy (spring) motion. Follow Apple's two-layer model: glass only on the floating functional layer (tab bar/nav, filter bar, sheets, popovers, small controls over photos), never on content cards. Use spring physics for indicators, segmented controls, presses, and sheets. Keep Reduce Transparency, Increase Contrast, and Reduce Motion fallbacks.
 
+- **V3.1 — motion libraries:** Use Motion (`motion`, `motion-dom` `animateView`) for filter/layout morphs with `{ type: spring, visualDuration: 0.4, bounce: 0.18 }`, enter `{opacity:[0,1], scale:[0.85,1]}` and exit `{opacity:0, scale:0.85}` with `stagger(0.03)`. Use anime.js `createTimeline` with grid `stagger` (`grid:[13,13], from:'center'`, scale `[1.1, .75]`, `inOutQuad`, 200ms per ring) for the intro dot ripple.
+
+## Tooling
+- Motion AI Kit: `npx motion-ai` (skill `motion`, `motion-reviewer` agent, `motion` + `motion-plus` MCP servers in `.mcp.json` / `opencode.jsonc`)
+- shadcn MCP: `npx shadcn@latest mcp init --client claude` (in `.mcp.json`, mirrored in `opencode.jsonc`)
+
 ## Design skills available in this repo
 Consult these (in `.agents/skills/`, mirrored in `.claude/skills/`) when designing or reviewing UI:
 - `apple-design` (dickwu/apple-design-skill): Apple HIG reviewer, including the Liquid Glass guide

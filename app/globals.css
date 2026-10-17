@@ -212,3 +212,10 @@ table.admin th { color: var(--muted); font-weight: 500; }
 .nav.glass { position: fixed; }
 .grabber { display: none; grid-column: 1 / -1; margin-top: 8px; }
 @media (max-width: 800px) { .grabber { display: block; } }
+/* anime.js grid ripple behind the intro wordmark */
+.dot-grid { position: absolute; inset: 0; margin: auto; width: min(80vmin, 640px); height: min(80vmin, 640px); display: grid; grid-template-columns: repeat(13, 1fr); place-items: center; pointer-events: none; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #b9a6ff; opacity: .2; transform: scale(.4); }
+.nav-pill { background: rgba(255,255,255,.2); }
+.seg-thumb { background: rgba(255,255,255,.22); }
+html[data-intro-seen] .intro { display: none; }
+.skip.glass { position: absolute; }

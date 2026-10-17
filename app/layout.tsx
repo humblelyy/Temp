@@ -13,7 +13,11 @@ export const viewport: Viewport = { themeColor: "#0a0a0b", viewportFit: "cover",
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* decide before first paint whether to show the intro, so it never flashes in late */}
+        <script dangerouslySetInnerHTML={{ __html: `try{if(sessionStorage.getItem("humbl-intro")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.introSeen="1"}catch(e){}` }} />
+      </head>
       <body>
         <a href="#main" className="btn" style={{ position: "absolute", left: -9999 }}>Skip to content</a>
         <div className="scroll-edge" aria-hidden />
