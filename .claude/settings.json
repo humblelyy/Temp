@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "ai-ui-design-skills": {
+      "source": { "source": "github", "repo": "dhananjaym182/ai-ui-design-skills" }
+    }
+  },
+  "enabledPlugins": {
+    "ai-ui-design-skills@ai-ui-design-skills": true
+  }
+}
