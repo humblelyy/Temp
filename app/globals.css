@@ -104,3 +104,111 @@ table.admin th { color: var(--muted); font-weight: 500; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .card { opacity: 1; transform: none; }
 }
+
+/* ============ iOS 26 Liquid Glass layer (V3) ============ */
+:root {
+  --spring: linear(0, .009, .035 2.1%, .141 4.4%, .723 12.9%, .938 16.7%, 1.017 19.6%, 1.067, 1.088 25.4%, 1.089 27.2%, 1.07 30.9%, 1.023 37.6%, .996 44.6%, .989 50.3%, .998 63.4%, 1.001 76.5%, 1);
+  --spring-soft: linear(0, .05 3%, .29 9%, .75 19%, 1.02 29%, 1.04 35%, 1.01 47%, .995 60%, 1);
+  --glass-fill: rgba(30,30,34,.42);
+  --glass-clear: rgba(255,255,255,.08);
+}
+.glass, .glass-clear { position: relative; isolation: isolate; border: 0;
+  background: var(--glass-fill);
+  backdrop-filter: blur(28px) saturate(1.5) brightness(1.05); -webkit-backdrop-filter: blur(28px) saturate(1.5) brightness(1.05);
+  box-shadow: 0 0 0 .5px rgba(255,255,255,.14) inset, 0 1px 1px rgba(255,255,255,.18) inset, 0 -1px 1px rgba(0,0,0,.25) inset, 0 12px 36px rgba(0,0,0,.38), 0 2px 6px rgba(0,0,0,.2); }
+.glass-clear { background: var(--glass-clear); backdrop-filter: blur(12px) saturate(1.6); -webkit-backdrop-filter: blur(12px) saturate(1.6); }
+/* specular rim: brighter top-left edge, like light hitting a lens */
+.glass::before, .glass-clear::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
+  background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.06) 35%, rgba(255,255,255,0) 60%, rgba(255,255,255,.22));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+/* soft inner sheen */
+.glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(120% 80% at 30% 0%, rgba(255,255,255,.12), transparent 55%); }
+
+/* bouncy press — springs back on release */
+.press { transition: transform .55s var(--spring); }
+.press:active { transform: scale(.94); transition-duration: .12s; transition-timing-function: ease-out; }
+
+/* Nav becomes a tab bar */
+.nav { padding: 5px; gap: 4px; transition: transform .6s var(--spring); }
+.nav-link { flex-direction: column; gap: 2px; padding: 7px 18px; min-height: 48px; justify-content: center; font-size: 12px; font-weight: 500; color: rgba(242,239,232,.62); }
+.nav-link svg { width: 21px; height: 21px; }
+.nav-link[aria-current="page"] { color: #fff; }
+.nav-link[aria-current="page"] svg { color: #b9a6ff; }
+.nav-pill { background: rgba(255,255,255,.14); border: 0; box-shadow: 0 0 0 .5px rgba(255,255,255,.2) inset, 0 1px 0 rgba(255,255,255,.25) inset;
+  transition: left .7s var(--spring), width .7s var(--spring); }
+.nav-pill.jelly { animation: jelly .7s var(--spring); }
+@keyframes jelly { 0% { transform: scale(1,1); } 25% { transform: scale(1.18,.86); } 55% { transform: scale(.95,1.05); } 100% { transform: scale(1,1); } }
+.nav.hidden { transform: translateX(-50%) translateY(-140%); }
+@media (max-width: 720px) { .nav.hidden { transform: translateX(-50%) translateY(140%); } .nav-link { padding: 7px 14px; } }
+
+/* scroll-edge effect: content blurs & fades under floating controls */
+.scroll-edge { position: fixed; z-index: 30; left: 0; right: 0; top: 0; height: 96px; pointer-events: none;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  -webkit-mask: linear-gradient(#000 30%, transparent); mask: linear-gradient(#000 30%, transparent);
+  background: linear-gradient(rgba(10,10,11,.6), transparent); }
+@media (max-width: 720px) { .scroll-edge { top: auto; bottom: 0; transform: scaleY(-1); } }
+
+/* Floating filter capsule */
+.toolbar-wrap { position: sticky; top: 88px; z-index: 20; margin: 28px 0 22px; }
+@media (max-width: 720px) { .toolbar-wrap { top: 12px; } }
+.toolbar { margin: 0; padding: 8px; border-radius: 26px; align-items: center; grid-template-columns: 1.6fr auto repeat(3, 1fr); }
+@media (max-width: 900px) { .toolbar { grid-template-columns: 1fr 1fr; } .toolbar .seg { grid-column: 1 / -1; } }
+.toolbar .field { background: rgba(255,255,255,.07); border: 0; border-radius: 18px; min-height: 44px; }
+.toolbar .field:focus { background: rgba(255,255,255,.12); outline: none; box-shadow: 0 0 0 2px rgba(139,108,255,.7); }
+
+/* iOS segmented control with sliding thumb */
+.seg { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 18px; background: rgba(255,255,255,.07); min-height: 44px; }
+.seg button { position: relative; z-index: 1; background: none; border: 0; padding: 0 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: rgba(242,239,232,.7); border-radius: 15px; white-space: nowrap; }
+.seg button[aria-pressed="true"] { color: #fff; }
+.seg-thumb { position: absolute; top: 3px; bottom: 3px; border-radius: 15px; background: rgba(255,255,255,.18); box-shadow: 0 0 0 .5px rgba(255,255,255,.25) inset, 0 1px 0 rgba(255,255,255,.3) inset, 0 3px 10px rgba(0,0,0,.25);
+  transition: left .6s var(--spring); }
+
+/* Content cards: no glass (content layer), big continuous corners, spring on hover/press */
+.card { border-radius: 28px; transition: opacity .6s ease, transform .8s var(--spring); }
+.card.in:hover { transform: translateY(-4px); }
+.card.in:active { transform: scale(.97); transition-duration: .15s; }
+.card img { transition: transform .9s var(--spring-soft); }
+.card-meta { padding: 48px 16px 14px; }
+.badge { border-radius: 999px; }
+.fav { width: 44px; height: 44px; transition: transform .55s var(--spring); }
+.fav:active { transform: scale(.82); transition-duration: .1s; }
+.fav[aria-pressed="true"] { color: #ff6b8a; animation: pop .6s var(--spring); }
+@keyframes pop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+
+/* Sheet */
+.modal-back { background: rgba(0,0,0,.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal { border-radius: 36px; animation: sheet-in .75s var(--spring) both; --glass-fill: rgba(28,28,32,.62); }
+.modal.closing { animation: sheet-out .28s ease-in both; }
+.modal-back.closing { animation: fade-out .28s ease-in both; }
+.modal-img { border-radius: 28px; margin: 8px; overflow: hidden; }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(60px) scale(.92); } }
+@keyframes sheet-out { to { opacity: 0; transform: translateY(40px) scale(.95); } }
+@keyframes fade-out { to { opacity: 0; } }
+@media (max-width: 800px) {
+  .modal-back { place-items: end center; padding: 0; }
+  .modal { border-radius: 36px 36px 0 0; max-height: 92vh; padding-bottom: env(safe-area-inset-bottom); }
+  @keyframes sheet-in { from { transform: translateY(100%); } }
+}
+.grabber { width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.3); margin: 0 auto; }
+
+/* Buttons: glass capsules, one tinted primary */
+.btn { border: 0; border-radius: 999px; background: rgba(255,255,255,.1); box-shadow: 0 0 0 .5px rgba(255,255,255,.14) inset, 0 1px 0 rgba(255,255,255,.14) inset; transition: transform .55s var(--spring), background .2s; font-weight: 500; }
+.btn:hover { background: rgba(255,255,255,.16); }
+.btn:active:not(:disabled) { transform: scale(.94); transition-duration: .1s; }
+.btn.primary { background: var(--violet); color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 6px 20px rgba(139,108,255,.35); }
+.btn.primary:hover { background: #9a7fff; }
+.cookie { border-radius: 30px; animation: sheet-in .8s var(--spring) both; }
+
+/* Accessibility fallbacks */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-clear, .scroll-edge { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: #1c1c20 !important; }
+}
+@media (prefers-contrast: more) {
+  .glass, .glass-clear { background: #1c1c20; box-shadow: 0 0 0 1.5px rgba(255,255,255,.6) inset; }
+}
+@media (prefers-reduced-motion: reduce) { .nav-pill.jelly { animation: none; } }
+.fav.glass-clear { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; color: #fff; }
+.nav.glass { position: fixed; }
+.grabber { display: none; grid-column: 1 / -1; margin-top: 8px; }
+@media (max-width: 800px) { .grabber { display: block; } }

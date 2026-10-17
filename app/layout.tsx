@@ -16,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <a href="#main" className="btn" style={{ position: "absolute", left: -9999 }}>Skip to content</a>
+        <div className="scroll-edge" aria-hidden />
         <Nav />
         <main id="main">{children}</main>
         <Footer />

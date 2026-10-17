@@ -1,4 +1,4 @@
-# HUMBL Wallpapers — Prototype V2
+# HUMBL Wallpapers — Prototype V3
 
 A premium still and live wallpaper platform for the HUMBLE brand. Next.js 15 + TypeScript. **Prototype — not production-ready.**
 
@@ -28,3 +28,7 @@ docker compose -f docker-compose.alloy.yaml up -d
 - Wallpaper imagery is placeholder photography from picsum.photos.
 - No backend: no private storage, signed downloads, admin auth, rate limiting or ad verification. Download is disabled.
 - Contact form does not send messages.
+
+## Changelog
+- **V3** — iOS 26 Liquid Glass pass (guided by the `apple-design` skill): glass limited to the floating layer (tab bar, filter capsule, sheet, cookie popover, clear-glass favorite buttons over photos); specular rims, scroll-edge blur; spring physics via CSS `linear()` on the tab indicator (with jelly squash), segmented control, buttons, cards and sheet; tab bar hides on scroll down; bottom sheet with grabber on mobile; Reduce Transparency / Increase Contrast / Reduce Motion fallbacks.
+- **V2** — Initial prototype.

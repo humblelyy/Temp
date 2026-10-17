@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container foot">
         <div>
           <div style={{ color: "var(--fg)", fontWeight: 600, letterSpacing: ".04em" }}>HUMBL Wallpapers</div>
-          <div style={{ marginTop: 6 }}>Prototype V2 · A HUMBLE brand project</div>
+          <div style={{ marginTop: 6 }}>Prototype V3 · A HUMBLE brand project</div>
         </div>
         <nav aria-label="Footer">
           <Link href="/about">About</Link>

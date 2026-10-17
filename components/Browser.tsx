@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Wallpaper } from "@/lib/wallpapers";
 import WallpaperImage from "./WallpaperImage";
+import Segmented from "./Segmented";
 
 const FAV = "humbl-favorites";
 
@@ -14,7 +15,12 @@ export default function Browser({ categories }: { categories: string[] }) {
   const [sort, setSort] = useState("new");
   const [favOnly, setFavOnly] = useState(false);
   const [favs, setFavs] = useState<string[]>([]);
-  const [open, setOpen] = useState<Wallpaper | null>(null);
+  const [open, setOpenRaw] = useState<Wallpaper | null>(null);
+  const [closing, setClosing] = useState(false);
+  const setOpen = (w: Wallpaper | null) => {
+    if (w) { setClosing(false); setOpenRaw(w); return; }
+    setClosing(true); setTimeout(() => { setOpenRaw(null); setClosing(false); }, 260);
+  };
   const grid = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,13 +68,13 @@ export default function Browser({ categories }: { categories: string[] }) {
 
   return (
     <section className="container" id="browse" aria-label="Browse wallpapers">
-      <div className="toolbar">
+      <div className="toolbar-wrap"><div className="toolbar glass">
         <input className="field search" type="search" placeholder="Search titles or tags — fog, night, minimal…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search wallpapers" />
-        <select className="field" value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Format"><option value="all">Still & live</option><option value="still">Still</option><option value="live">Live</option></select>
+        <Segmented label="Format" value={kind} onChange={setKind} options={[{ value: "all", label: "All" }, { value: "still", label: "Still" }, { value: "live", label: "Live" }]} />
         <select className="field" value={device} onChange={(e) => setDevice(e.target.value)} aria-label="Device"><option value="all">All devices</option><option value="phone">Phone</option><option value="tablet">Tablet</option><option value="desktop">Desktop</option></select>
         <select className="field" value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Category"><option value="all">All categories</option>{categories.map((c) => <option key={c}>{c}</option>)}</select>
         <select className="field" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort"><option value="new">Newest</option><option value="popular">Most downloaded</option><option value="az">A–Z</option></select>
-      </div>
+      </div></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, color: "var(--muted)", fontSize: 14 }}>
         <span aria-live="polite">{items ? `${list.length} wallpaper${list.length === 1 ? "" : "s"}` : "Loading…"}</span>
         <label style={{ display: "flex", gap: 8, alignItems: "center", cursor: "pointer" }}>
@@ -87,7 +93,7 @@ export default function Browser({ categories }: { categories: string[] }) {
                 <span className={`badge${w.kind === "live" ? " live" : ""}`}>{w.kind === "live" ? "Live" : w.format}</span>
               </div>
             </button>
-            <button className="fav glass" onClick={() => toggleFav(w.id)} aria-pressed={favs.includes(w.id)} aria-label={favs.includes(w.id) ? `Remove ${w.title} from favorites` : `Add ${w.title} to favorites`}>
+            <button className="fav glass-clear" onClick={() => toggleFav(w.id)} aria-pressed={favs.includes(w.id)} aria-label={favs.includes(w.id) ? `Remove ${w.title} from favorites` : `Add ${w.title} to favorites`}>
               {favs.includes(w.id) ? "♥" : "♡"}
             </button>
           </div>
@@ -96,8 +102,9 @@ export default function Browser({ categories }: { categories: string[] }) {
       {items && !list.length && <p style={{ color: "var(--muted)", padding: "48px 0", textAlign: "center" }}>Nothing matches those filters yet.</p>}
 
       {open && (
-        <div className="modal-back" onClick={() => setOpen(null)}>
-          <div className="modal glass" role="dialog" aria-modal="true" aria-labelledby="wp-title" onClick={(e) => e.stopPropagation()}>
+        <div className={`modal-back${closing ? " closing" : ""}`} onClick={() => setOpen(null)}>
+          <div className={`modal glass${closing ? " closing" : ""}`} role="dialog" aria-modal="true" aria-labelledby="wp-title" onClick={(e) => e.stopPropagation()}>
+            <div className="grabber" aria-hidden />
             <div className="modal-img"><WallpaperImage src={open.preview} alt={open.title} width={open.width} height={open.height} eager /></div>
             <div className="modal-body">
               <div>
@@ -114,7 +121,7 @@ export default function Browser({ categories }: { categories: string[] }) {
               </dl>
               <p style={{ fontSize: 13, color: "var(--muted)", margin: 0, lineHeight: 1.5 }}>Prototype: original-file downloads require the server-side signed-URL backend, which is not connected yet.</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: "auto" }}>
-                <button className="btn primary" disabled title="Backend not connected in Prototype V2">Download original</button>
+                <button className="btn primary press" disabled title="Backend not connected in Prototype V2">Download original</button>
                 <button className="btn" onClick={() => toggleFav(open.id)} aria-pressed={favs.includes(open.id)}>{favs.includes(open.id) ? "♥ Saved" : "♡ Favorite"}</button>
                 <button className="btn" onClick={() => setOpen(null)}>Close</button>
               </div>
